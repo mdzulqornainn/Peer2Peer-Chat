@@ -1,0 +1,16 @@
+{
+  "name": "p2p-chat-signaling-server",
+  "version": "1.0.0",
+  "description": "Socket.IO signaling server for the WebRTC P2P chat (relays offer/answer/ICE only)",
+  "main": "server.js",
+  "scripts": {
+    "start": "node server.js",
+    "dev": "node --watch server.js"
+  },
+  "dependencies": {
+    "socket.io": "^4.8.4"
+  },
+  "engines": {
+    "node": ">=18"
+  }
+}
