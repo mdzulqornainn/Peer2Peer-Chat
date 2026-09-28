@@ -8,13 +8,12 @@ import { differentialManchesterEncode } from '@/lib/manchester';
  *
  * Props:
  *  - bits: string "0101..." (binary dari CIPHERTEXT)
- *  - color: warna garis sinyal
+ *  - variant: 'out' (pesan terkirim) | 'in' (pesan diterima) — menentukan warna garis
  *  - maxBytes: berapa byte yang ditampilkan sebelum tombol "Show all"
  *
- * Layout per bit (lebar BIT_W):
- *   |<-- half 1 -->|<-- half 2 -->|
- *   garis putus-putus = batas bit, garis tebal = batas byte
- *   label bit ditulis di atas, garis tengah bit (clock) samar di bawah.
+ * Panel berlatar ungu gelap (--color-primary-dark) ala osiloskop,
+ * garis sinyal pakai --color-canvas (out) / --color-soft (in).
+ * Warna diambil dari CSS variable di app/globals.css.
  */
 const BIT_W = 28;
 const HALF_W = BIT_W / 2;
@@ -24,8 +23,11 @@ const HIGH_Y = TOP + 6;
 const LOW_Y = TOP + 46;
 const HEIGHT = LOW_Y + 18;
 
-export default function ManchesterWaveform({ bits, color = '#34d399', maxBytes = 8 }) {
+const c = (name, alpha = 1) => `rgb(var(--color-${name}) / ${alpha})`;
+
+export default function ManchesterWaveform({ bits, variant = 'out', maxBytes = 8 }) {
   const [showAll, setShowAll] = useState(false);
+  const signalColor = variant === 'out' ? c('canvas') : c('soft');
 
   const totalBytes = Math.ceil(bits.length / 8);
   const truncated = !showAll && totalBytes > maxBytes;
@@ -50,16 +52,16 @@ export default function ManchesterWaveform({ bits, color = '#34d399', maxBytes =
   const width = PAD_X + shownBits.length * BIT_W + 12;
 
   return (
-    <div className="mt-2 rounded-lg border border-slate-800 bg-slate-950/70 p-2">
-      <div className="mb-1 flex items-center justify-between gap-2 text-[10px] uppercase tracking-wider text-slate-500">
-        <span>Differential Manchester · ciphertext ({bits.length} bits)</span>
+    <div className="mt-2 rounded-lg bg-primary-dark p-2 shadow-sm">
+      <div className="mb-1 flex items-center justify-between gap-2 text-[10px] uppercase tracking-wider text-canvas/70">
+        <span>Differential Manchester · ciphertext ({bits.length} bit)</span>
         {totalBytes > maxBytes && (
           <button
             type="button"
             onClick={() => setShowAll((v) => !v)}
-            className="rounded px-1.5 py-0.5 normal-case tracking-normal text-slate-300 hover:bg-slate-800"
+            className="rounded px-1.5 py-0.5 normal-case tracking-normal text-canvas hover:bg-white/10"
           >
-            {showAll ? `Show first ${maxBytes} bytes` : `Show all ${totalBytes} bytes`}
+            {showAll ? `Tampilkan ${maxBytes} byte pertama` : `Tampilkan semua ${totalBytes} byte`}
           </button>
         )}
       </div>
@@ -70,14 +72,14 @@ export default function ManchesterWaveform({ bits, color = '#34d399', maxBytes =
           height={HEIGHT}
           viewBox={`0 0 ${width} ${HEIGHT}`}
           role="img"
-          aria-label={`Differential Manchester waveform of ${shownBits.length} bits`}
+          aria-label={`Gelombang Differential Manchester, ${shownBits.length} bit`}
           className="block"
         >
           {/* Level labels */}
-          <text x={4} y={HIGH_Y + 4} className="fill-slate-500" fontSize="10" fontFamily="monospace">H</text>
-          <text x={4} y={LOW_Y + 4} className="fill-slate-500" fontSize="10" fontFamily="monospace">L</text>
-          <line x1={PAD_X - 10} x2={width} y1={HIGH_Y} y2={HIGH_Y} stroke="#1e293b" strokeDasharray="2 4" />
-          <line x1={PAD_X - 10} x2={width} y1={LOW_Y} y2={LOW_Y} stroke="#1e293b" strokeDasharray="2 4" />
+          <text x={4} y={HIGH_Y + 4} style={{ fill: c('canvas', 0.6) }} fontSize="10" fontFamily="monospace">H</text>
+          <text x={4} y={LOW_Y + 4} style={{ fill: c('canvas', 0.6) }} fontSize="10" fontFamily="monospace">L</text>
+          <line x1={PAD_X - 10} x2={width} y1={HIGH_Y} y2={HIGH_Y} style={{ stroke: c('canvas', 0.15) }} strokeDasharray="2 4" />
+          <line x1={PAD_X - 10} x2={width} y1={LOW_Y} y2={LOW_Y} style={{ stroke: c('canvas', 0.15) }} strokeDasharray="2 4" />
 
           {Array.from(shownBits).map((bit, i) => {
             const x = PAD_X + i * BIT_W;
@@ -90,12 +92,12 @@ export default function ManchesterWaveform({ bits, color = '#34d399', maxBytes =
                   x2={x}
                   y1={TOP - 4}
                   y2={LOW_Y + 6}
-                  stroke={isByteStart ? '#475569' : '#1e293b'}
+                  style={{ stroke: c('soft', isByteStart ? 0.6 : 0.2) }}
                   strokeWidth={isByteStart ? 1.5 : 1}
                   strokeDasharray={isByteStart ? undefined : '3 3'}
                 />
                 {/* Tick clock di tengah bit */}
-                <line x1={x + HALF_W} x2={x + HALF_W} y1={LOW_Y + 8} y2={LOW_Y + 12} stroke="#334155" />
+                <line x1={x + HALF_W} x2={x + HALF_W} y1={LOW_Y + 8} y2={LOW_Y + 12} style={{ stroke: c('soft', 0.4) }} />
                 {/* Label bit */}
                 <text
                   x={x + HALF_W}
@@ -103,7 +105,7 @@ export default function ManchesterWaveform({ bits, color = '#34d399', maxBytes =
                   textAnchor="middle"
                   fontSize="11"
                   fontFamily="monospace"
-                  fill={bit === '1' ? '#e2e8f0' : '#64748b'}
+                  style={{ fill: bit === '1' ? c('canvas') : c('canvas', 0.5) }}
                 >
                   {bit}
                 </text>
@@ -116,20 +118,20 @@ export default function ManchesterWaveform({ bits, color = '#34d399', maxBytes =
             x2={PAD_X + shownBits.length * BIT_W}
             y1={TOP - 4}
             y2={LOW_Y + 6}
-            stroke="#475569"
+            style={{ stroke: c('soft', 0.6) }}
             strokeWidth={1.5}
           />
 
           {/* Sinyal */}
-          <path d={path} fill="none" stroke={color} strokeWidth="2" strokeLinejoin="miter" />
+          <path d={path} fill="none" style={{ stroke: signalColor }} strokeWidth="2" strokeLinejoin="miter" />
         </svg>
       </div>
 
-      <div className="mt-1 flex flex-wrap gap-x-3 text-[10px] text-slate-500">
-        <span>bit 0 = transition at start</span>
-        <span>bit 1 = no transition at start</span>
-        <span>always a transition mid-bit</span>
-        {truncated && <span className="text-amber-400/80">showing {halves.length / 2} of {bits.length} bits</span>}
+      <div className="mt-1 flex flex-wrap gap-x-3 text-[10px] text-canvas/60">
+        <span>bit 0 = ada transisi di awal bit</span>
+        <span>bit 1 = tanpa transisi di awal bit</span>
+        <span>selalu ada transisi di tengah bit</span>
+        {truncated && <span className="text-soft">menampilkan {halves.length / 2} dari {bits.length} bit</span>}
       </div>
     </div>
   );

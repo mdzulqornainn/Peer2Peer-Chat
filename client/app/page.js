@@ -27,35 +27,35 @@ export default function EntryPage() {
     <main className="flex min-h-screen items-center justify-center px-4">
       <div className="w-full max-w-sm">
         <div className="mb-8 text-center">
-          <div className="mx-auto mb-4 grid h-14 w-14 place-items-center rounded-2xl bg-emerald-500 text-lg font-bold text-slate-950">
+          <div className="mx-auto mb-4 grid h-14 w-14 place-items-center rounded-2xl bg-primary text-lg font-bold text-on-primary">
             P2P
           </div>
-          <h1 className="text-2xl font-semibold text-white">Peer-to-Peer Chat</h1>
-          <p className="mt-2 text-sm text-slate-400">
-            WebRTC Data Channel · XOR encryption · Differential Manchester signals
+          <h1 className="text-2xl font-semibold text-ink">Peer-to-Peer Chat</h1>
+          <p className="mt-2 text-sm text-ink/60">
+            WebRTC Data Channel · Enkripsi XOR · Sinyal Differential Manchester
           </p>
         </div>
 
-        <form onSubmit={handleSubmit} className="space-y-4 rounded-2xl border border-slate-800 bg-slate-900/60 p-6">
+        <form onSubmit={handleSubmit} className="space-y-4 rounded-2xl border border-soft/70 bg-surface shadow-sm p-6">
           <label className="block">
-            <span className="mb-1.5 block text-sm text-slate-300">Username (display name)</span>
+            <span className="mb-1.5 block text-sm text-ink/80">Username (nama tampilan)</span>
             <input
               autoFocus
               value={name}
               onChange={(e) => setName(e.target.value)}
               maxLength={24}
-              placeholder="e.g. Adinda"
-              className="w-full rounded-lg border border-slate-700 bg-slate-950 px-3 py-2.5 text-white outline-none placeholder:text-slate-600 focus:border-emerald-500 focus:ring-2 focus:ring-emerald-500/30"
+              placeholder="contoh: Adinda"
+              className="w-full rounded-lg border border-soft bg-surface px-3 py-2.5 text-ink outline-none placeholder:text-ink/40 focus:border-primary focus:ring-2 focus:ring-primary/20"
             />
           </label>
           <button
             type="submit"
             disabled={!name.trim()}
-            className="w-full rounded-lg bg-emerald-500 py-2.5 font-medium text-slate-950 transition hover:bg-emerald-400 disabled:cursor-not-allowed disabled:opacity-40"
+            className="w-full rounded-lg bg-primary py-2.5 font-medium text-on-primary transition hover:bg-primary-dark disabled:cursor-not-allowed disabled:opacity-40"
           >
-            Continue
+            Lanjut
           </button>
-          <p className="text-center text-xs text-slate-500">No account needed. Stored only in this browser.</p>
+          <p className="text-center text-xs text-ink/60">Tanpa akun. Nama hanya disimpan di browser ini.</p>
         </form>
       </div>
     </main>

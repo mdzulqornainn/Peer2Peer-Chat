@@ -77,7 +77,7 @@ export function useWebRTC(roomId, username) {
       channel.onopen = () => {
         if (channelRef.current !== channel) return;
         setChannelState('open');
-        addSystem('🔒 Data Channel open — messages now travel peer-to-peer.');
+        addSystem('🔒 Data Channel terbuka — pesan sekarang dikirim langsung peer-to-peer.');
         channel.send(JSON.stringify({ type: 'hello', username }));
       };
       channel.onclose = () => {
@@ -106,7 +106,7 @@ export function useWebRTC(roomId, username) {
             // DECRYPT lokal dengan key = Room ID
             plaintext = xorDecrypt(cipherBytes, roomId);
           } catch {
-            plaintext = '[failed to decrypt]';
+            plaintext = '[gagal didekripsi]';
           }
           setMessages((m) => [
             ...m,
@@ -152,7 +152,7 @@ export function useWebRTC(roomId, username) {
         if (pcRef.current !== pc) return;
         setPeerState(pc.connectionState);
         if (pc.connectionState === 'failed') {
-          addSystem('❌ P2P connection failed (NAT/firewall?). Try the same network or add a TURN server.');
+          addSystem('❌ Koneksi P2P gagal (NAT/firewall?). Coba di jaringan yang sama atau tambahkan server TURN.');
         }
       };
       pc.oniceconnectionstatechange = () => {
@@ -181,7 +181,7 @@ export function useWebRTC(roomId, username) {
 
     socket.on('connect_error', () => {
       setSignalingState('error');
-      setError(`Cannot reach signaling server at ${signalingUrl}. Is server.js running?`);
+      setError(`Tidak bisa terhubung ke signaling server di ${signalingUrl}. Apakah server.js sudah dijalankan?`);
     });
 
     socket.on('disconnect', () => {
@@ -195,18 +195,18 @@ export function useWebRTC(roomId, username) {
 
     socket.on('room-full', () => {
       setPeerState('room-full');
-      setError('This room already has 2 participants. Use another Room ID.');
+      setError('Room ini sudah berisi 2 orang. Gunakan Room ID lain.');
       socket.disconnect();
     });
 
     socket.on('room-joined', ({ peers }) => {
       if (peers.length === 0) {
         setPeerState('waiting');
-        addSystem(`You joined room ${roomId}. Waiting for a peer…`);
+        addSystem(`Kamu masuk ke room ${roomId}. Menunggu lawan bicara…`);
       } else {
         setPeerName(peers[0].username);
         setPeerState('new');
-        addSystem(`Joined room ${roomId}. ${peers[0].username} is here — waiting for their offer…`);
+        addSystem(`Masuk ke room ${roomId}. ${peers[0].username} sudah di sini — menunggu offer darinya…`);
       }
     });
 
@@ -214,7 +214,7 @@ export function useWebRTC(roomId, username) {
     socket.on('peer-joined', async ({ socketId, username: remoteName }) => {
       try {
         setPeerName(remoteName);
-        addSystem(`${remoteName} joined. Creating WebRTC offer…`);
+        addSystem(`${remoteName} bergabung. Membuat WebRTC offer…`);
         const pc = createPeer(socketId);
         setupChannel(pc.createDataChannel('chat', { ordered: true }));
         const offer = await pc.createOffer();
@@ -222,7 +222,7 @@ export function useWebRTC(roomId, username) {
         socket.emit('offer', { to: socketId, sdp: pc.localDescription.toJSON() });
       } catch (err) {
         console.error(err);
-        setError(`Failed to create offer: ${err.message}`);
+        setError(`Gagal membuat offer: ${err.message}`);
       }
     });
 
@@ -238,7 +238,7 @@ export function useWebRTC(roomId, username) {
         socket.emit('answer', { to: from, sdp: pc.localDescription.toJSON() });
       } catch (err) {
         console.error(err);
-        setError(`Failed to handle offer: ${err.message}`);
+        setError(`Gagal memproses offer: ${err.message}`);
       }
     });
 
@@ -250,7 +250,7 @@ export function useWebRTC(roomId, username) {
         await flushPendingCandidates(pc);
       } catch (err) {
         console.error(err);
-        setError(`Failed to apply answer: ${err.message}`);
+        setError(`Gagal menerapkan answer: ${err.message}`);
       }
     });
 
@@ -274,7 +274,7 @@ export function useWebRTC(roomId, username) {
       closePeer();
       setPeerName(null);
       setPeerState('waiting');
-      addSystem(`${remoteName || 'Peer'} left the room. Waiting for a new peer…`);
+      addSystem(`${remoteName || 'Lawan bicara'} keluar dari room. Menunggu peserta baru…`);
     });
 
     return () => {

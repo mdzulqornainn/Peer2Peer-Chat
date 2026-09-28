@@ -19,21 +19,21 @@ function Profile() {
     <>
       <Navbar />
       <main className="mx-auto max-w-md px-4 py-12">
-        <div className="rounded-2xl border border-slate-800 bg-slate-900/60 p-8 text-center">
-          <div className="mx-auto grid h-20 w-20 place-items-center rounded-full bg-emerald-500 text-3xl font-bold text-slate-950">
+        <div className="rounded-2xl border border-soft/70 bg-surface shadow-sm p-8 text-center">
+          <div className="mx-auto grid h-20 w-20 place-items-center rounded-full bg-primary text-3xl font-bold text-on-primary">
             {username.charAt(0).toUpperCase()}
           </div>
-          <p className="mt-4 text-xs uppercase tracking-wider text-slate-500">Username</p>
-          <h1 className="mt-1 text-2xl font-semibold text-white">{username}</h1>
-          <p className="mt-3 text-sm text-slate-400">
-            Your name is stored only in this browser (localStorage). No server-side account exists.
+          <p className="mt-4 text-xs uppercase tracking-wider text-ink/60">Username</p>
+          <h1 className="mt-1 text-2xl font-semibold text-ink">{username}</h1>
+          <p className="mt-3 text-sm text-ink/60">
+            Nama kamu hanya disimpan di browser ini (localStorage). Tidak ada akun yang tersimpan di server.
           </p>
 
           <button
             onClick={handleLogout}
-            className="mt-8 w-full rounded-lg bg-rose-500 py-2.5 font-medium text-white transition hover:bg-rose-400"
+            className="mt-8 w-full rounded-lg bg-rose-600 py-2.5 font-medium text-white transition hover:bg-rose-700"
           >
-            Reset / Logout
+            Reset / Keluar
           </button>
         </div>
       </main>

@@ -75,7 +75,7 @@ io.on('connection', (socket) => {
     const username = String(payload.username || '').trim().slice(0, 24) || 'Anonymous';
 
     if (!ROOM_ID_PATTERN.test(roomId)) {
-      socket.emit('join-error', { message: 'Invalid Room ID (4-32 chars, A-Z, 0-9, "-").' });
+      socket.emit('join-error', { message: 'Room ID tidak valid (4–32 karakter: A–Z, 0–9, "-").' });
       return;
     }
 

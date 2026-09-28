@@ -1,10 +1,12 @@
 'use client';
 
+// Warna status sengaja tetap hijau / kuning / merah (bukan ungu),
+// supaya arti "berhasil / menunggu / gagal" tetap langsung terbaca.
 const tone = {
-  good: 'bg-emerald-500/15 text-emerald-300 ring-emerald-500/30',
-  wait: 'bg-amber-500/15 text-amber-300 ring-amber-500/30',
-  bad: 'bg-rose-500/15 text-rose-300 ring-rose-500/30',
-  idle: 'bg-slate-500/15 text-slate-300 ring-slate-500/30',
+  good: 'bg-emerald-50 text-emerald-800 ring-emerald-600/30',
+  wait: 'bg-amber-50 text-amber-800 ring-amber-600/30',
+  bad: 'bg-rose-50 text-rose-800 ring-rose-600/30',
+  idle: 'bg-surface text-ink/70 ring-soft',
 };
 
 function toneFor(value) {
@@ -14,13 +16,30 @@ function toneFor(value) {
   return 'idle';
 }
 
+// Nilai state asli dari WebRTC / Socket.IO (bahasa Inggris) -> label Indonesia
+const labelId = {
+  connected: 'terhubung',
+  connecting: 'menghubungkan',
+  disconnected: 'terputus',
+  failed: 'gagal',
+  closed: 'tertutup',
+  open: 'terbuka',
+  new: 'baru',
+  checking: 'memeriksa',
+  completed: 'selesai',
+  waiting: 'menunggu',
+  'room-full': 'room penuh',
+  error: 'error',
+};
+
 function Pill({ label, value }) {
   const t = toneFor(value);
+  const shown = labelId[value] || value;
   return (
     <div className={`flex items-center gap-1.5 rounded-full px-2.5 py-1 text-[11px] ring-1 ${tone[t]}`}>
       <span className={`h-1.5 w-1.5 rounded-full bg-current ${t === 'wait' ? 'animate-pulse' : ''}`} />
-      <span className="text-slate-400">{label}:</span>
-      <span className="font-medium">{value}</span>
+      <span className="opacity-70">{label}:</span>
+      <span className="font-medium" title={value}>{shown}</span>
     </div>
   );
 }

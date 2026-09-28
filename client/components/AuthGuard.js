@@ -14,9 +14,7 @@ export default function AuthGuard({ children }) {
   }, [hydrated, username, router]);
 
   if (!hydrated || !username) {
-    return (
-      <div className="flex min-h-screen items-center justify-center text-slate-400">Loading…</div>
-    );
+    return <div className="flex min-h-screen items-center justify-center text-ink/60">Memuat…</div>;
   }
   return children;
 }

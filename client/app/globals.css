@@ -2,16 +2,34 @@
 @tailwind components;
 @tailwind utilities;
 
+/*
+ * ============================================================
+ *  PALET WARNA — ganti di sini saja, semua UI ikut berubah.
+ *  Format: "R G B" (tanpa koma) supaya bisa pakai opacity
+ *  Tailwind, contoh: bg-primary/20, text-ink/60.
+ * ============================================================
+ */
+:root {
+  --color-canvas: 244 217 245;       /* #F4D9F5  (1) background halaman        */
+  --color-primary-dark: 93 6 110;    /* #5D066E  (2) hover, panel waveform      */
+  --color-primary: 110 7 124;        /* #6E077C  (3)/(7) M3/sys/light/primary   */
+  --color-accent: 139 26 154;        /* #8B1A9A  (4) aksen, link, Room ID       */
+  --color-soft: 219 136 222;         /* #DB88DE  (5) border, garis, highlight   */
+  --color-ink: 29 27 32;             /* #1D1B20  (6) M3/sys/light/on-non-primary — TEBAKAN, ganti dengan nilai asli */
+  --color-on-primary: 255 255 255;   /* #FFFFFF  teks di atas warna primary      */
+  --color-surface: 255 255 255;      /* #FFFFFF  kartu / panel                   */
+}
+
 html,
 body {
-  background-color: #020617; /* slate-950 */
-  color: #e2e8f0;
+  background-color: rgb(var(--color-canvas));
+  color: rgb(var(--color-ink));
 }
 
 .waveform-scroll::-webkit-scrollbar {
   height: 6px;
 }
 .waveform-scroll::-webkit-scrollbar-thumb {
-  background: #334155;
+  background: rgb(var(--color-soft));
   border-radius: 9999px;
 }
