@@ -6,12 +6,15 @@ WebRTC DataChannel. Python hanya membantu proses awal koneksi.
 Setiap pesan memiliki visualisasi sinyal Differential Manchester dengan frame:
 
 ```text
-START | DATA CIPHERTEXT | PARITY | END
+START | DATA ASCII | PARITY | END
 ```
 
 Parity menggunakan **even parity**. Nilai START adalah kebalikan bit pertama
 data, sedangkan nilai END adalah kebalikan bit terakhir data. Contoh: bit `1`
-menghasilkan event `0`, dan bit `0` menghasilkan event `1`.
+menghasilkan event `0`, dan bit `0` menghasilkan event `1`. Visualisasi memakai
+byte UTF-8 pesan asli, bukan hasil XOR. Jadi pesan `1` memakai HEX `31`,
+DATA `00110001`, dan FRAME `10011000110`. Ciphertext XOR tetap dipakai untuk
+pengiriman melalui DataChannel.
 
 ## 1. Instalasi
 

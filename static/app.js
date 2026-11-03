@@ -3,6 +3,7 @@
 const app = document.querySelector("#app");
 const roomPattern = /^[A-Z0-9-]{4,32}$/;
 const roomAlphabet = "ABCDEFGHJKMNPQRSTUVWXYZ23456789";
+const SIGNAL_BIT_WIDTH = 34;
 
 let username = localStorage.getItem("username") || "";
 let closeActiveRoom = null;
@@ -53,8 +54,12 @@ function encrypt(text, roomId) {
   return xorBytes(new TextEncoder().encode(text), roomId);
 }
 
+function decryptBytes(bytes, roomId) {
+  return xorBytes(bytes, roomId);
+}
+
 function decrypt(bytes, roomId) {
-  return new TextDecoder().decode(xorBytes(bytes, roomId));
+  return new TextDecoder().decode(decryptBytes(bytes, roomId));
 }
 
 function bytesToBase64(bytes) {
@@ -83,14 +88,19 @@ function createSignalFrame(bytes) {
   const parityBit = numberOfOnes % 2 === 0 ? "0" : "1";
   const startBit = dataBits[0] === "1" ? "0" : "1";
   const endBit = dataBits[dataBits.length - 1] === "1" ? "0" : "1";
+  const bits = `${startBit}${dataBits}${parityBit}${endBit}`;
 
   return {
-    bits: `${startBit}${dataBits}${parityBit}${endBit}`,
+    bits,
     labels: [
-      { name: "START", value: startBit, width: 9 },
-      { name: "DATA", value: `${dataBits.length} bit`, width: dataBits.length * 9 },
-      { name: "PARITY", value: parityBit, width: 9 },
-      { name: "END", value: endBit, width: 9 },
+      { name: "START", value: startBit, width: SIGNAL_BIT_WIDTH },
+      {
+        name: "DATA",
+        value: `${dataBits.length} bit`,
+        width: dataBits.length * SIGNAL_BIT_WIDTH,
+      },
+      { name: "PARITY", value: parityBit, width: SIGNAL_BIT_WIDTH },
+      { name: "END", value: endBit, width: SIGNAL_BIT_WIDTH },
     ],
     dataBits,
     parityBit,
@@ -101,9 +111,10 @@ function createSignalFrame(bytes) {
 
 function createSignalImage(frameBits) {
   // Satu bit memiliki dua bagian. Setiap bit selalu berganti level di tengah.
-  const bitWidth = 34;
+  const bitWidth = SIGNAL_BIT_WIDTH;
   const leftMargin = 30;
-  const imageWidth = Math.max(520, leftMargin + frameBits.length * bitWidth);
+  const signalWidth = frameBits.length * bitWidth;
+  const imageWidth = Math.max(520, leftMargin + signalWidth);
   const high = 43;
   const low = 93;
   let level = 0;
@@ -329,8 +340,8 @@ function startWebRTC(roomId) {
     messages.insertAdjacentHTML("beforeend", `<div class="system">${escapeHtml(text)}</div>`);
   }
 
-  function showChatMessage(text, sender, bytes, outgoing, timestamp) {
-      const signal = createSignalFrame(bytes);
+  function showChatMessage(text, dataBytes, sender, outgoing, timestamp) {
+    const signal = createSignalFrame(dataBytes);
     messages.insertAdjacentHTML("beforeend", `
       <article class="message ${outgoing ? "outgoing" : ""}">
         <div class="meta">${escapeHtml(sender)} · ${new Date(timestamp).toLocaleTimeString("id-ID")}</div>
@@ -356,9 +367,9 @@ function startWebRTC(roomId) {
             </div>
           </div>
           <details>
-            <summary class="muted">Lihat ciphertext</summary>
+            <summary class="muted">Lihat data ASCII</summary>
             <small>
-              HEX: ${bytesToHex(bytes)}<br>
+              HEX: ${bytesToHex(dataBytes)}<br>
               DATA: ${signal.dataBits}<br>
               FRAME: ${signal.bits}
             </small>
@@ -391,7 +402,14 @@ function startWebRTC(roomId) {
       }
       if (message.type === "chat") {
         const bytes = base64ToBytes(message.cipher);
-        showChatMessage(decrypt(bytes, roomId), message.sender, bytes, false, message.timestamp);
+        const dataBytes = decryptBytes(bytes, roomId);
+        showChatMessage(
+          decrypt(bytes, roomId),
+          dataBytes,
+          message.sender,
+          false,
+          message.timestamp,
+        );
       }
     };
   }
@@ -520,6 +538,7 @@ function startWebRTC(roomId) {
     if (!text || !dataChannel || dataChannel.readyState !== "open") return;
 
     const bytes = encrypt(text, roomId);
+    const dataBytes = new TextEncoder().encode(text);
     const message = {
       type: "chat",
       sender: username,
@@ -528,7 +547,7 @@ function startWebRTC(roomId) {
     };
 
     dataChannel.send(JSON.stringify(message));
-    showChatMessage(text, username, bytes, true, message.timestamp);
+    showChatMessage(text, dataBytes, username, true, message.timestamp);
     input.value = "";
   });
 
